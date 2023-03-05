@@ -1,0 +1,23 @@
+name: ocra
+channels:
+  - conda-forge
+dependencies:
+  # Python and package management itself
+  - python=3.11
+  # Modules for setting up development environment
+  - pylint
+  - pytest
+  - black
+  - pydantic
+  # Essential modules for the server
+  - flask
+  - flask-socketio
+  - Tk
+  # Essential modules for image generation and handling
+  - Pillow
+  # Essential modules for OCR
+  - pytesseract
+  - pip
+  - pip:
+    - pymupdf
+    - simple-websocket  # Without this, Socket.IO falls back to less efficient means than WebSocket

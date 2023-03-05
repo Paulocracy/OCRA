@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!--
+    Main HTML file for OCRA.
+-->
+<html>
+<head>
+    <!-- Set startup title which can be later changed by using
+    the value document.title -->
+    <title>basic_server</title>
+
+    <!--Set mostly "universal" character set which e.g.
+    includes German umlauts (ÄÖÜäöü), ancient scripts etc.-->
+    <meta charset="utf-16">
+
+    <!-- CSS loading section -->
+    <link rel="stylesheet" href="{{url_for('static', filename='ocra.css')}}">
+</head>
+<body>
+    <input type="button" value="Set tesseract path..." onclick="handle_out_set_tesseract_path()">
+    <output id="tesseract_path"></output>
+
+    Arguments:
+    <input type="text" id="tesseract_arguments" size="6" onchange="handle_change_tesseract_arguments()">
+
+    Language 1:
+    <input type="text" id="tesseract_language_1" size="6" onchange="handle_change_tesseract_languages()">
+    2:
+    <input type="text" id="tesseract_language_2" size="6" onchange="handle_change_tesseract_languages()">
+    <br>
+
+    <input type="button" value="Open OCRA project folder..." onclick="handle_open_project_folder()">
+    <output id="project_folder"></output>
+
+    <input type="button" value="Open new PDF..." onclick="handle_open_new_pdf()">
+
+    <!-- PDF page handler -->
+    <br>
+    <input type="button" value="&lt;" onclick="handle_page_down()">
+    Page
+    <input type="text" id="current_page" size="6">
+    /
+    <output id="page_number"></output>
+    <input type="button" value="Go" onclick="handle_goto_page()">
+    <input type="button" value="&gt;" onclick="handle_page_up()">
+
+    <!-- OCR buttons -->
+    <input type="button" value="OCR (overwrite text)!" onclick="handle_overwriting_ocr()"> <!--onclick="clear_textarea()">-->
+    <input type="button" value="OCR (append to text)!" onclick="handle_appending_ocr()"> <!--onclick="append_string_to_textarea('abc')">-->
+
+    <!-- Clear rects button -->
+    <input type="button" value="Clear all reacts" onclick="clear_all_rects()">
+
+    <!-- Image X zoom radio buttons  -->
+    <fieldset>
+        <legend>X Zoom</legend>
+
+        <input id="x_zoom_range" type="range" min="1" max="150" step="1" value="50" />
+        <output id="x_zoom_value"></output>%
+    </fieldset>
+
+    <!-- Image Y zoom radio buttons  -->
+    <fieldset>
+        <legend>Y Zoom</legend>
+
+        <input id="y_zoom_range" type="range" min="1" max="150" step="1" value="50" />
+        <output id="y_zoom_value"></output>%
+    </fieldset>
+
+    <!-- Rect language state -->
+    <fieldset>
+        <legend>Rect language</legend>
+        <input type="radio" id="rect_language_1" name="rect_language_state" value="1" checked>
+        <label for="rect_language_1">1</label>
+        <input type="radio" id="rect_language_2" name="rect_language_state" value="2">
+        <label for="rect_language_2">2</label>
+        <input type="radio" id="rect_language_1_and_2" name="rect_language_state" value="1_and_2">
+        <label for="rect_language_1_and_2">1&2</label>
+    </fieldset>
+
+    <!--Image div-->
+    <!--
+    <div class="image">
+        <img src="{{url_for('static', filename='./testfile.png')}}"/>
+    </div>
+    -->
+    <canvas id="viewport"></canvas>
+
+    <!-- OCR output -->
+    <textarea id="text_field" rows="30" cols="90" onchange="handle_changed_text()"></textarea>
+
+    <!-- Rotation setting -->
+    <fieldset>
+        <legend>Rotation</legend>
+
+        <input id="rotation_range" type="range" min="-180" max="180" step="5" value="0" />
+        <output id="rotation_value"></output>°
+    </fieldset>
+
+    <!-- DPI setting -->
+    <fieldset>
+        <legend>DPI</legend>
+
+        <input id="dpi_range" type="range" min="150" max="500" step="25" value="400" />
+        <output id="dpi_value"></output> dpi
+    </fieldset>
+
+    <!-- Black & white binarization setting -->
+    <fieldset>
+        <legend>Black & white binarization</legend>
+
+        <input type="checkbox" id="binarization_is_active">
+        <label for="binarization_is_active">Activate</label>
+
+        <input id="binarization_range" type="range" min="90" max="200" step="10" value="130" />
+        <output id="binarization_value"></output>
+    </fieldset>
+
+    <!-- JavaScript loading section -->
+    <script src="{{url_for('static', filename='./node_modules/socket.io-client/dist/socket.io.min.js')}}"></script>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+</body>
+</html>
