@@ -6,7 +6,7 @@
 <head>
     <!-- Set startup title which can be later changed by using
     the value document.title -->
-    <title>basic_server</title>
+    <title>OCRA</title>
 
     <!--Set mostly "universal" character set which e.g.
     includes German umlauts (ÄÖÜäöü), ancient scripts etc.-->
@@ -16,45 +16,45 @@
     <link rel="stylesheet" href="{{url_for('static', filename='ocra.css')}}">
 </head>
 <body>
-    <input type="button" value="Set tesseract path..." onclick="handle_out_set_tesseract_path()">
+    <input type="button" id="set_tesseract_path" value="Set tesseract path...">
     <output id="tesseract_path"></output>
 
     Arguments:
-    <input type="text" id="tesseract_arguments" size="6" onchange="handle_change_tesseract_arguments()">
+    <input type="text" id="tesseract_arguments" size="6">
 
     Language 1:
-    <input type="text" id="tesseract_language_1" size="6" onchange="handle_change_tesseract_languages()">
+    <input type="text" id="tesseract_language_1" size="6">
     2:
-    <input type="text" id="tesseract_language_2" size="6" onchange="handle_change_tesseract_languages()">
+    <input type="text" id="tesseract_language_2" size="6">
     <br>
 
-    <input type="button" value="Open OCRA project folder..." onclick="handle_open_project_folder()">
+    <input type="button" id="open_project_folder" value="Open OCRA project folder...">
     <output id="project_folder"></output>
 
-    <input type="button" value="Open new PDF..." onclick="handle_open_new_pdf()">
+    <input type="button" id="open_new_pdf" value="Open new PDF...">
 
     <!-- PDF page handler -->
     <br>
-    <input type="button" value="&lt;" onclick="handle_page_down()">
+    <input type="button" id="page_down" value="&lt;">
     Page
     <input type="text" id="current_page" size="6">
     /
     <output id="page_number"></output>
-    <input type="button" value="Go" onclick="handle_goto_page()">
-    <input type="button" value="&gt;" onclick="handle_page_up()">
+    <input type="button" id="page_goto" value="Go">
+    <input type="button" id="page_up" value="&gt;">
 
     <!-- OCR buttons -->
-    <input type="button" value="OCR (overwrite text)!" onclick="handle_overwriting_ocr()"> <!--onclick="clear_textarea()">-->
-    <input type="button" value="OCR (append to text)!" onclick="handle_appending_ocr()"> <!--onclick="append_string_to_textarea('abc')">-->
+    <input type="button" id="ocr_overwrite" value="OCR (overwrite text)!">
+    <input type="button" id="ocr_append" value="OCR (append to text)!">
 
     <!-- Clear rects button -->
-    <input type="button" value="Clear all reacts" onclick="clear_all_rects()">
+    <input type="button" id="clear_all_rects" value="Clear all reacts">
 
     <!-- Image X zoom radio buttons  -->
     <fieldset>
         <legend>X Zoom</legend>
 
-        <input id="x_zoom_range" type="range" min="1" max="150" step="1" value="50" />
+        <input id="x_zoom_range" type="range" min="1" max="150" step="1" value="25" />
         <output id="x_zoom_value"></output>%
     </fieldset>
 
@@ -62,7 +62,7 @@
     <fieldset>
         <legend>Y Zoom</legend>
 
-        <input id="y_zoom_range" type="range" min="1" max="150" step="1" value="50" />
+        <input id="y_zoom_range" type="range" min="1" max="150" step="1" value="25" />
         <output id="y_zoom_value"></output>%
     </fieldset>
 
@@ -78,21 +78,16 @@
     </fieldset>
 
     <!--Image div-->
-    <!--
-    <div class="image">
-        <img src="{{url_for('static', filename='./testfile.png')}}"/>
-    </div>
-    -->
     <canvas id="viewport"></canvas>
 
     <!-- OCR output -->
-    <textarea id="text_field" rows="30" cols="90" onchange="handle_changed_text()"></textarea>
+    <textarea id="text_field" rows="80" cols="90"></textarea>
 
     <!-- Rotation setting -->
     <fieldset>
         <legend>Rotation</legend>
 
-        <input id="rotation_range" type="range" min="-180" max="180" step="5" value="0" />
+        <input id="rotation_range" type="range" min="-180" max="180" step="1" value="1" />
         <output id="rotation_value"></output>°
     </fieldset>
 
@@ -100,7 +95,7 @@
     <fieldset>
         <legend>DPI</legend>
 
-        <input id="dpi_range" type="range" min="150" max="500" step="25" value="400" />
+        <input id="dpi_range" type="range" min="150" max="700" step="25" value="500" />
         <output id="dpi_value"></output> dpi
     </fieldset>
 
@@ -111,7 +106,7 @@
         <input type="checkbox" id="binarization_is_active">
         <label for="binarization_is_active">Activate</label>
 
-        <input id="binarization_range" type="range" min="90" max="200" step="10" value="130" />
+        <input id="binarization_range" type="range" min="50" max="210" step="10" value="130" />
         <output id="binarization_value"></output>
     </fieldset>
 

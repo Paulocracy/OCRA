@@ -1,8 +1,16 @@
+"""Small file I/O utility helper functions for OCRA.
+
+These functions include ones for JSON handling, path
+standardization and more.
+"""
+
+# IMPORTS SECTION #
 import json
 import os
 from typing import Any
 
 
+# PUBLIC FUNCTIONS SECTION #
 def ensure_folder_existence(*, folder_path: str) -> None:
     """Checks if the given folder exists. If not, the folder is created.
 
@@ -45,11 +53,6 @@ def is_file_existing(*, filepath: str) -> bool:
         return False
 
 
-def get_filename_from_file_path(*, file_path: str) -> str:
-    file_path = standardize_file_path(file_path=file_path)
-    return os.path.basename(file_path)
-
-
 def json_load(*, file_path: str) -> Any:
     """Loads the given JSON file and returns it as json_data (a list
     or a dictionary).
@@ -80,12 +83,6 @@ def json_write(*, file_path: str, json_data: Any) -> None:
 def standardize_file_path(*, file_path: str) -> str:
     file_path = file_path.replace("\\", "/")
     return file_path
-
-
-def combine_folder_and_file_path(*, folder_path: str, file_path: str) -> str:
-    return standardize_folder_path(folder_path=folder_path) + standardize_file_path(
-        file_path=file_path
-    )
 
 
 def standardize_folder_path(
