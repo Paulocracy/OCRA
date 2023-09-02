@@ -7,12 +7,41 @@
  * >Global DOM-related variables are prefixes with "dom_"
  * >Global non-DOM variables are prefixed with "g_"
  *
- * SOURCE CODE INDEX:
- * 1. Global variables section
- * 2.
+ * ORDER OF SOURCE CODE SECTIONS:
+ * 1. Custom types section
+ * 2. Global variables section
+ * 3. Server communication handlers & functions section
+ * 4. Input event listeners functions section
+ * 5. Canvas logic section
+ * 6. Textarea functions section
+ * 7. Startup routine section
  */
 
-/* # GLOBAL VARIABLES SECTION #
+/* # 1. CUSTOM TYPES SECTION # */
+/**
+ * Represents a basic image configuration.
+ * @typedef {Object} BaseImageConfig
+ * @property {string} x_zoom - Current X axis zoom  in %.
+ * @property {number} y_zoom - Current Y axis zoom in %.
+ * @property {number} rotation - Current image rotation in degrees (°).
+ * @property {boolean} is_binarized - Indicates whether or not the current page is black&white-binarized.
+ * @property {number} binarization_threshold - If is_binarized is true, indicates the black&white binarization threshold.
+ * @property {number} dpi -  The current page image's DPI. Changes of it also affect the coordinate sytem.
+ */
+
+/**
+ * Represents a user-drawn rectangle for marking an OCR area.
+ * @typedef {Object} Rect
+ * @property {number} x - The X coordinate of the Rect's upper left corner.
+ * @property {number} y - The Y coordinate of the Rect's upper left corner.
+ * @property {number} w - The Rect's width.
+ * @property {number} h - The Rect's height.
+ * @property {string} language_state - Either '1', '2' or '1_and_2', used according to the current languages TODO: Change to enum.
+ * @property {boolean} temp - Is true if the Rect is currently drawn (mouse down), false as soon as the mouse is up.
+ */
+
+
+/* # 2. GLOBAL VARIABLES SECTION #
    After Socket.IO, sorted after appearance in OCRA's GUI, starting from the top left in left-to-right direction.
 */
 /* ## Socket.IO main variable ## */
@@ -94,14 +123,15 @@ var g_base_image = new Image()
 var g_leftMouseIsDown = false
 /** @type {number} */
 var g_mousemovecounter = 0
-/** @type {any} TODO (also TODO: All 'Element' types) */
+// (TODO: All 'Element' types)
+/** @type {Rect[]} */
 var g_rects = []
 /** @type {number} */
 var g_x_start = 0.0
 /** @type {number} */
 var g_y_start = 0.0
 
-/* ## ROTATION SETTING VARIABLES ## */
+/* ## Rotation setting variables ## */
 /** @type {HTMLInputElement} */
 const dom_rotation_input = document.querySelector("#rotation_range")
 /** @type {Element} */
@@ -142,7 +172,7 @@ var g_is_binarization_changed = false
 var g_binarization_threshold = Number(dom_binarization_input.value)
 
 
-/* # SERVER COMMUNICATION HANDLERS & FUNCTIONS SECTION # */
+/* # 3. SERVER COMMUNICATION HANDLERS & FUNCTIONS SECTION # */
 /* ## Server->Client handlers ## */
 socket.on('connect', function () {
     // alert("Connected!")
@@ -187,8 +217,10 @@ socket.on("data_update", function (json) {
     dom_binarization_input.value = json["binarization_threshold"]
     dom_binarization_value.textContent = json["binarization_threshold"]
     // Set rects
+    /** @type {Rect[]} */
     let new_rects = []
     for (let rect_data of json["rects"]) {
+        /** @type {Rect} */
         let rect = {
             x: rect_data["x"],
             y: rect_data["y"],
@@ -221,6 +253,7 @@ socket.on('get_tesseract_path', function (string) {
  * Handles a newly received image configuration change.
  */
 function handle_changed_image_config() {
+    /** @type {BaseImageConfig} - The currently set image configuration. */
     let image_config = {
         x_zoom: g_x_zoom_factor,
         y_zoom: g_y_zoom_factor,
@@ -248,7 +281,7 @@ function send_new_page(page) {
     socket.emit("new_page", page)
 }
 
-/* ### 'DIRECT' FUNCTIONS (REACTING TO EVENT AND/OR DIRECTLY SENDING SIGNAL TO SERVER) ### */
+/* ### "Direct" functions (reactiong to event and/or directly sending signal to server) ### */
 /**
  * Adds a newline to the OCRA text area's text and
  * sends the signal to perform the OCR to the
@@ -409,7 +442,7 @@ dom_tesseract_language_2.onchange = function (event) {
     handle_change_tesseract_languages()
 }
 
-/* # INPUT EVENT LISTENERS FUNCTIONS SECTION # */
+/* # 4. INPUT EVENT LISTENERS FUNCTIONS SECTION # */
 // X zoom
 dom_x_zoom_value.textContent = dom_x_zoom_input.value
 dom_x_zoom_input.addEventListener("input", (event) => {
@@ -516,7 +549,7 @@ dom_binarization_input.onmouseleave = function (event) {
     handle_changed_image_config()
 }
 
-/* # CANVAS LOGIC SECTION # */
+/* # 5. CANVAS LOGIC SECTION # */
 /* ## Canvas functions ## */
 /**
  * Adds a Rect instance with the given parameters to the global rects variable. This global variable stores
@@ -533,6 +566,7 @@ dom_binarization_input.onmouseleave = function (event) {
  * server as the left mouse button is still down) or not. Is 'true' if temporary, 'false' if not.
  */
 function add_rect(x, y, w, h, language_state, temp) {
+    /** @type {Rect} */
     let rect = {
         x: x,
         y: y,
@@ -562,7 +596,7 @@ dom_clear_all_rects.onclick = function (event) {
 /**
  * Draws the selected Rect in the canvas.
  *
- * @param {any} rect TODO The Rect that shall be drawn.
+ * @param {Rect} rect TODO The Rect that shall be drawn.
  * @param {number} rect_counter The Rect's index in the global Rect list.
  *                              Is drawn in a corner.
  */
@@ -577,17 +611,23 @@ function draw_rect(rect, rect_counter) {
  * @param  {number} y Y coordinate
  */
 function delete_rects_at_position(x, y) {
+    /** @type {number[]} */
     let deleted_rect_indexes = []
+    /** @type {number} */
     let rect_counter = -1
     for (let rect of g_rects) {
         rect_counter++
+        /** @type {number} */
         let x_upper_left = rect.x
+        /** @type {number} */
         let x_lower_right = rect.x + rect.w
         if (rect.w < 0.0) {
             x_upper_left = rect.x + rect.w
             x_lower_right = rect.x
         }
+        /** @type {number} */
         let y_upper_left = rect.y
+        /** @type {number} */
         let y_lower_right = rect.y + rect.h
         if (rect.h <= 0.0) {
             y_lower_right = rect.y
@@ -621,6 +661,7 @@ function redraw_canvas() {
     // Draw image
     dom_ccontext.drawImage(g_base_image, 0, 0, g_base_image.width, g_base_image.height, 0, 0, dom_canvas.width, dom_canvas.height)
     // Draw all rects
+    /** @type {number} */
     let rect_counter = 0
     for (let rect of g_rects) {
         draw_rect(rect, rect_counter)
@@ -634,12 +675,14 @@ function zoom_canvas() {
     dom_canvas.width = g_base_image.width * g_x_zoom_factor
     dom_canvas.height = g_base_image.height * g_y_zoom_factor
 }
-/* ## CANVAS INPUT LISTENERS ## */
+/* ## Canvas input listeners ## */
 dom_canvas.onmousedown = function (event) {
     if (!event) {
         return
     }
+    /** @type {number} */
     let x = event.pageX - dom_canvas.offsetLeft
+    /** @type {number} */
     let y = event.pageY - dom_canvas.offsetTop
     g_x_start = x / g_x_zoom_factor
     g_y_start = y / g_y_zoom_factor
@@ -668,18 +711,24 @@ dom_canvas.onmousemove = function (event) {
     if (!g_leftMouseIsDown) {
         return
     }
+    /** @type {number} */
     let x = event.pageX - dom_canvas.offsetLeft
+    /** @type {number} */
     let y = event.pageY - dom_canvas.offsetTop
     x /= g_x_zoom_factor
     y /= g_y_zoom_factor
+    /** @type {number} */
     let w = x - g_x_start
+    /** @type {number} */
     let h = y - g_y_start
+
     if (g_rects.length > 0) {
         let last_rect = g_rects.pop()
         if (!last_rect.temp) {
             g_rects.push(last_rect)
         }
     }
+    /** @type {string} */
     const rect_language_state = document.querySelector('input[name="rect_language_state"]:checked')
     add_rect(g_x_start, g_y_start, w, h, rect_language_state.value, true)
     redraw_canvas()
@@ -695,18 +744,24 @@ dom_canvas.onmouseup = function (event) {
     if (g_rects.length > 0) {
         g_rects.pop()
     }
+    /** @type {number} */
     let x_end = event.pageX - dom_canvas.offsetLeft
+    /** @type {number} */
     let y_end = event.pageY - dom_canvas.offsetTop
     x_end /= g_x_zoom_factor
     y_end /= g_y_zoom_factor
+    /** @type {number} */
     let w = x_end - g_x_start
+    /** @type {number} */
     let h = y_end - g_y_start
+    /** @type {string} */
     const rect_language_state = document.querySelector('input[name="rect_language_state"]:checked')
     add_rect(g_x_start, g_y_start, w, h, rect_language_state.value, false)
     redraw_canvas()
     handle_changed_rects()
 }
-/* # TEXTAREA FUNCTIONS SECTION # */
+
+/* # 6. TEXTAREA FUNCTIONS SECTION # */
 /**
  * Adds the given string to the OCRA text area's text. No newline is added anywhere.
  *
@@ -721,7 +776,8 @@ function append_string_to_textarea(string) {
 function clear_textarea() {
     dom_text_area.value = ""
 }
-/* # STARTUP ROUTINE SECTION # */
+
+/* # 7. STARTUP ROUTINE SECTION # */
 // Load empty standard image at start-up
 g_base_image.src = "static/Empty.png"
 g_base_image.onload = function () {
