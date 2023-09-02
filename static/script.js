@@ -1,22 +1,22 @@
+"use strict";
 /**
  * TypeScript code for OCRA, the OCR Assistant.
  *
- * CODE REMARKS:
+ * CODE STYLE REMARKS:
  * >Aimed code comment style: https://tsdoc.org/
  * >Global DOM-related variables are prefixes with "dom_"
  * >Global non-DOM variables are prefixed with "g_"
  *
- * CODE SECTIONS:
- *
- * MORE INFORMATION:
- *
+ * SOURCE CODE INDEX:
+ * 1.
  */
-/* # IMPORTS SECTION # */
+
 /* # GLOBAL VARIABLES SECTION #
    Sorted after appearance in OCRA's GUI, starting from the top left in left-to-right direction.
 */
-/* ## SERVER LOGIC MAIN VARIABLEE */
+/* ## SERVER LOGIC MAIN VARIABLE */
 const socket = io();
+
 /* ## TESSERACT CONFIG VARIABLES ## */
 const dom_set_tesseract_path = document.querySelector("#set_tesseract_path");
 const dom_tesseract_path = document.querySelector("#tesseract_path");
@@ -78,6 +78,8 @@ const dom_binarization_input = document.querySelector("#binarization_range");
 const dom_binarization_value = document.querySelector("#binarization_value");
 var g_is_binarization_changed = false;
 var g_binarization_threshold = Number(dom_binarization_input.value);
+
+
 /* # SERVER COMMUNICATION FUNCTIONS SECTION # */
 /* ## SERVER->CLIENT FUNCTIONS ## */
 socket.on('connect', function () {
@@ -152,7 +154,7 @@ socket.on('get_tesseract_path', function (string) {
 /* ## CLIENT->SERVER FUNCTIONS ## */
 /* ### 'INDIRECT' FUNCTIONS (USED BY OTHER CLIENT->SERVER FUNCTIONS) ### */
 /**
- *
+ * Handles a newly received image configuration change.
  */
 function handle_changed_image_config() {
     let image_config = {
@@ -166,14 +168,15 @@ function handle_changed_image_config() {
     socket.emit("set_changed_image_config", image_config);
 }
 /**
- *
+ * Handles a newly changed Rect status.
  */
 function handle_changed_rects() {
     socket.emit("set_changed_rects", g_rects);
 }
 /**
+ * Sends a new page signal to the OCRA server.
  *
- * @param page
+ * @param page The new page's number
  */
 function send_new_page(page) {
     socket.emit("new_page", page);
@@ -248,7 +251,8 @@ dom_set_tesseract_path.onclick = function (event) {
     handle_set_tesseract_path();
 };
 /**
- *
+ * Handles the 'Go to page' button click by sending a new page signal.
+ * Leads to an OCR server signal.
  */
 function handle_goto_page() {
     send_new_page(Number(dom_current_page.value));
@@ -261,7 +265,8 @@ dom_page_goto.onclick = function (event) {
 };
 /* ## CLIENT->SERVER->CLIENT FUNCTIONS ## */
 /**
- *
+ * Handles a new OCR start with clearing of the current transcript.
+ * Leads to an OCR server signal.
  */
 function handle_overwriting_ocr() {
     clear_textarea();
@@ -274,7 +279,8 @@ dom_ocr_overwrite.onclick = function (event) {
     handle_overwriting_ocr();
 };
 /**
- *
+ * Handles going one page down (-1).
+ * Leads to an OCR server signal.
  */
 function handle_page_down() {
     if (g_current_page > 0) {
@@ -288,7 +294,8 @@ dom_page_down.onclick = function (event) {
     handle_page_down();
 };
 /**
- *
+ * Handles going one page down (+1).
+ * Leads to an OCR server signal.
  */
 function handle_page_up() {
     send_new_page(g_current_page + 1);
@@ -300,7 +307,8 @@ dom_page_up.onclick = function (event) {
     handle_page_up();
 };
 /**
- *
+ * Handles changing the Tesseract OCR arguments,
+ * sends a coresponding signal to the OCR server.
  */
 function handle_change_tesseract_arguments() {
     socket.emit("change_tesseract_arguments", dom_tesseract_arguments.value);
@@ -312,7 +320,8 @@ dom_tesseract_arguments.onchange = function (event) {
     handle_change_tesseract_arguments();
 };
 /**
- *
+ * Handles change of the two Tesseract languages.
+ * Leads to an OCR server signal.
  */
 function handle_change_tesseract_languages() {
     socket.emit("change_tesseract_languages", {
@@ -460,7 +469,7 @@ function add_rect(x, y, w, h, language_state, temp) {
     g_rects.push(rect);
 }
 /**
- *
+ * Clears (deletes) all current rects and sends corresponding signals.
  */
 function clear_all_rects() {
     g_rects = [];
@@ -474,18 +483,21 @@ dom_clear_all_rects.onclick = function (event) {
     clear_all_rects();
 };
 /**
+ * Draws the selected Rect in the canvas.
  *
- * @param rect
- * @param rect_counter
+ * @param rect The Rect that shall be drawn.
+ * @param rect_counter The Rect's index in the global Rect list.
+ *                     Is drawn in a corner.
  */
 function draw_rect(rect, rect_counter) {
     dom_ccontext.fillText(rect_counter.toString() + "_" + rect.language_state, rect.x * g_x_zoom_factor, rect.y * g_y_zoom_factor);
     dom_ccontext.strokeRect(rect.x * g_x_zoom_factor, rect.y * g_y_zoom_factor, rect.w * g_x_zoom_factor, rect.h * g_y_zoom_factor);
 }
 /**
+ * Deletes (clears) all Rects which include the given 2D coordinate.
  *
- * @param x
- * @param y
+ * @param x X coordinate
+ * @param y Y coordinate
  */
 function delete_rects_at_position(x, y) {
     let deleted_rect_indexes = [];
@@ -524,7 +536,7 @@ function delete_rects_at_position(x, y) {
     redraw_canvas();
 }
 /**
- *
+ * Clears and then redraws the whole canvas with the current content.
  */
 function redraw_canvas() {
     // Clear canvas
@@ -539,7 +551,7 @@ function redraw_canvas() {
     }
 }
 /**
- *
+ * Zooms the canvas widget according to the current settings.
  */
 function zoom_canvas() {
     dom_canvas.width = g_base_image.width * g_x_zoom_factor;
