@@ -81,7 +81,7 @@
     <canvas id="viewport"></canvas>
 
     <!-- OCR output -->
-    <textarea id="text_field" rows="80" cols="90"></textarea>
+    <textarea id="text_area" rows="80" cols="90"></textarea>
 
     <!-- Rotation setting -->
     <fieldset>
@@ -111,7 +111,7 @@
     </fieldset>
 
     <!-- JavaScript loading section -->
-    <script src="{{url_for('static', filename='./node_modules/socket.io-client/dist/socket.io.min.js')}}"></script>
+    <script src="{{url_for('static', filename='./socket.io.js')}}"></script>
     <script src="{{url_for('static', filename='script.js')}}"></script>
 </body>
 </html>
