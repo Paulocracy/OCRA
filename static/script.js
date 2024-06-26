@@ -42,7 +42,8 @@
 
 
 /* # 2. GLOBAL VARIABLES SECTION #
-   After Socket.IO, sorted after appearance in OCRA's GUI, starting from the top left in left-to-right direction.
+   After the Socket.IO initialization, the variables are sorted after appearance in OCRA's GUI,
+   starting from the top left in left-to-right direction.
 */
 /* ## Socket.IO main variable ## */
 const socket = io()
@@ -659,7 +660,9 @@ function redraw_canvas() {
     // Clear canvas
     dom_ccontext.clearRect(0, 0, dom_canvas.width, dom_canvas.height)
     // Draw image
-    dom_ccontext.drawImage(g_base_image, 0, 0, g_base_image.width, g_base_image.height, 0, 0, dom_canvas.width, dom_canvas.height)
+    dom_ccontext.drawImage(
+        g_base_image, 0, 0, g_base_image.width, g_base_image.height, 0, 0, dom_canvas.width, dom_canvas.height
+    )
     // Draw all rects
     /** @type {number} */
     let rect_counter = 0
